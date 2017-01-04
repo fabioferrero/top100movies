@@ -1,0 +1,14 @@
+
+	SVG = scalable vector graphics
+
+<svg>
+	<circle cx='10' cy='10' r='10' />
+</svg>
+
+	need http server (ex python)
+
+	load script library
+
+	1. 	load data & metadata
+	1.1 add preprocessing on data while loading
+	2.	Show
