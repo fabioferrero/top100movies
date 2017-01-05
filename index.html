@@ -8,14 +8,31 @@
         body {
             margin: 30px 50px;
             font-family: sans-serif;
+			align-content: center;
         }
+
+		.container {
+			padding: 0;
+			margin: auto;
+		}
+
+		.links line {
+			stroke: #999;
+			stroke-opacity: 0.6;
+		}
+
+		.nodes circle {
+			stroke: #fff;
+			stroke-width: 1.5px;
+		}
 
 	</style>
     <script src="d3/d3.js"></script>
 </head>
 <body>
-	<h1>InfoVis Project</h1>
-	<svg width="960" height="600"></svg>
-	<script src="viz.js"></script>
+	<div class="container">
+		<svg width="1300" height="750"></svg>
+		<script src="viz.js"></script>
+	</div>
 </body>
 </html>
