@@ -4702,7 +4702,7 @@ var dsv = function(delimiter) {
   };
 };
 
-var csv = dsv(",");
+var csv = dsv(";");
 
 var csvParse = csv.parse;
 var csvParseRows = csv.parseRows;
