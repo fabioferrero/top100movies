@@ -3,17 +3,17 @@ var numberOfFilms = 100;
 
 var body = d3.select("body");
 
-/* Create the similarity matrix */
+// Create the similarity matrix
 var similarity = new Array(numberOfFilms);
 for (var i = 0; i < numberOfFilms; i++) {
     similarity[i] = new Array(numberOfFilms);
 }
 
-/* Load movies data */
+// Load movies data
 d3.tsv("data/movies.tsv", function(error, data) {
     if(error) throw error;
 
-    /* compute some statistic while loading */
+    // compute some statistic while loading
     data.forEach(function(d) {
         var score = 0;
         var critics = [];
@@ -29,10 +29,26 @@ d3.tsv("data/movies.tsv", function(error, data) {
         d.critics = critics;
     });
 
-    /* compute the similarity matrix */
-    for (var i = 0; i < data.lenght; i++) {
-        for (var j = 1; j < data.lenght; j++) {
-            // compute..
+    // compute the similarity matrix
+    for (var i = 0; i < numberOfFilms; i++) {
+        similarity[i][i] = 1;
+        for (var j = i+1; j < numberOfFilms; j++) {
+            list1 = data[i]['critics'];
+            list2 = data[j]['critics'];
+            commonCritics = 0;
+            for (var x = 0, y = 0; x < list1.length && y < list2.length;) {
+                if (list1[x] > list2[y]) {
+                    y++;
+                } else if (list1[x] < list2[y]) {
+                    x++;
+                } else {
+                    x++;
+                    y++;
+                    commonCritics++;
+                }
+            }
+            similarity[i][j] = commonCritics / Math.max(list1.length, list2.length);
+            similarity[j][i] = similarity[i][j];
         }
     }
 
