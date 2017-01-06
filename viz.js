@@ -1,14 +1,4 @@
 
-var numberOfFilms = 100;
-
-var body = d3.select("body");
-
-// Create the similarity matrix
-var similarity = new Array(numberOfFilms);
-for (var i = 0; i < numberOfFilms; i++) {
-    similarity[i] = new Array(numberOfFilms);
-}
-
 // Create array of links
 var links = [];
 var nodes = [];
@@ -16,6 +6,14 @@ var nodes = [];
 // Load movies data
 d3.tsv("data/movies.tsv", function(error, data) {
     if(error) throw error;
+
+    var numberOfFilms = data.length;
+
+    // Create the similarity matrix
+    var similarity = new Array(numberOfFilms);
+    for (var i = 0; i < numberOfFilms; i++) {
+        similarity[i] = new Array(numberOfFilms);
+    }
 
     // compute some statistic while loading
     data.forEach(function(d) {
@@ -33,10 +31,13 @@ d3.tsv("data/movies.tsv", function(error, data) {
         d.critics = critics;
     });
 
+    data = data.filter(function(d) { return d.score > 20; });
+    numberOfFilms = data.length;
+
     // compute the similarity matrix
     for (var i = 0; i < numberOfFilms; i++) {
         similarity[i][i] = 1;
-        nodes.push({"id": data[i].title})
+        nodes.push({"id": data[i].title, "score": data[i].score})
         for (var j = i+1; j < numberOfFilms; j++) {
             list1 = data[i]['critics'];
             list2 = data[j]['critics'];
@@ -62,7 +63,7 @@ d3.tsv("data/movies.tsv", function(error, data) {
         }
     }
 
-    console.log("pause");
+    console.log(nodes.length + " " + links.length);
 
     var svg = d3.select("svg"),
     width = svg.attr("width"),
@@ -75,7 +76,7 @@ d3.tsv("data/movies.tsv", function(error, data) {
             .id(function(d) { return d.id; })
             .distance(function(d) { return 20/d.value; })
         )
-        .force("charge", d3.forceManyBody().strength(-5))
+        .force("charge", d3.forceManyBody().strength(-40))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
     var link = svg.append("g")
@@ -89,12 +90,11 @@ d3.tsv("data/movies.tsv", function(error, data) {
         .selectAll("circle")
         .data(nodes)
         .enter().append("circle")
+        //.attr("r", function(n) { return n.score; })
         .attr("r", 5)
         .attr("fill", "black")
-        /*.call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended))*/;
+        .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+        ;
 
     node.append("title")
         .text(function(d) { return d.id; });
