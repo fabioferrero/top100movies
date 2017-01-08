@@ -6,14 +6,31 @@
 	<style type="text/css" media="screen, print">
 
         body {
-            margin: 30px 50px;
+            margin: 30px 3%;
             font-family: sans-serif;
 			align-content: center;
         }
 
+		svg {
+			border: 2px solid #999;
+			border-radius: 4px;
+		}
+
+		h1, h2, h3 {
+			margin: 10px;
+		}
+
 		.container {
-			padding: 0;
-			margin: auto;
+			margin: 0 auto;
+			align-content: center;
+		}
+
+		.console {
+			border: 2px solid #999;
+			border-radius: 4px;
+			width: 29%;
+			height: 600px;
+			float: right;
 		}
 
 		.links line {
@@ -30,9 +47,13 @@
     <script src="d3/d3.js"></script>
 </head>
 <body>
+	<h1>InfoVis Project</h1>
 	<div class="container">
-		<svg width="1300" height="750"></svg>
-		<script src="viz.js"></script>
+		<svg width="950" height="600"></svg>
+		<div class="console">
+			<h2>Console</h2>
+		</div>
 	</div>
+	<script src="viz.js"></script>
 </body>
 </html>
