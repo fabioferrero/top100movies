@@ -142,27 +142,46 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
             covered.push({'x': randomX, 'y': randomY, 'w': movieWidth, 'h': movieHeight});
 
-            svg.append("defs")
-               .append("pattern")
-               .attr("id", d.id)
-               .attr('patternUnits', 'userSpaceOnUse')
-               .attr('x', randomX)
-               .attr('y', randomY)
-               .attr('width', movieWidth)
-               .attr('height', movieHeight)
-               .append("image")
-               .attr("xlink:href", d.poster)
-               .attr('width', movieWidth)
-               .attr('height', movieHeight);
-
-            var movie = svg.append('rect')
+            svg.select('g')
+                .append('defs')
+                .append('pattern')
+                .attr('id', d.id)
+                .attr('patternUnits', 'userSpaceOnUse')
                 .attr('x', randomX)
                 .attr('y', randomY)
                 .attr('width', movieWidth)
                 .attr('height', movieHeight)
-                .attr("fill", "url(#" + d.id + ")")
+                .append('image')
+                .attr('xlink:href', d.poster)
+                .attr('width', movieWidth)
+                .attr('height', movieHeight);
+
+            var movie = svg.select('g')
+                .append('rect')
+                .attr('x', randomX)
+                .attr('y', randomY)
+                .attr('width', movieWidth)
+                .attr('height', movieHeight)
+                .attr('fill', 'url(#' + d.id + ')')
                 .attr('class', 'movie');
         });
+
+        svg.append('rect')
+            .attr('class', 'zoom-layer')
+            .style('fill', 'none')
+            .style('pointer-events', 'all')
+            .attr('width', width)
+            .attr('height', height);
+
+        var zoom = d3.zoom()
+            .scaleExtent([1, 15])
+            .on('zoom', function () {
+                d3.select('svg')
+                    .select('g')
+                    .attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')');
+            });
+
+        var zoomrect = d3.select('svg').select('.zoom-layer').call(zoom);
         console.log('covered lenght: ' + covered.length);
     });
 
