@@ -78,43 +78,76 @@ d3.tsv('data/movies.tsv', function(error, data) {
         width = svg.attr('width'),
         height = svg.attr('height');
 
-        // Compute statistics
-        var totalArea = width*height/2;
+        //var scores = data.map((d) => { return d.score; });
 
-        var scores = data.map((d) => { return d.score; });
-
-        var maxScore = Math.max.apply(null, scores);
-        var minScore = Math.min.apply(null, scores);
-
-        
+        var totalArea = width*height/2.6;
+        var covered = [];
 
         data.forEach((d) => {
 
             var movieArea = Math.floor(totalArea * d.score / totalScore);
-            var movieWidth = 6 * Math.sqrt(movieArea / 54);
-            var movieHeight = 9 * Math.sqrt(movieArea / 54);
+            var movieWidth = Math.round(6 * Math.sqrt(movieArea / 54));
+            var movieHeight =  Math.round(9 * Math.sqrt(movieArea / 54));
 
-            var randomX = Math.floor(Math.random() * width);
-            var randomY = Math.floor(Math.random() * height);
+            var randomX, randomY, findAPlace;
 
-            // Check for boundaries
-            if (randomX + movieWidth >= width) {
-                randomX -= width - randomX + movieWidth + 1;
-            }
-            if (randomX <= 0) {
-                randomX = 1;
-            }
-            if (randomY + movieHeight >= height) {
-                randomY -= height - randomY + movieHeight + 1;
-            }
-            if (randomY <= 0) {
-                randomY = 1;
-            }
+            do {
+                randomX = Math.floor(Math.random() * width);
+                randomY = Math.floor(Math.random() * height);
+
+                // Check and correct x and y for box boundaries
+                if (randomX + movieWidth >= width) {
+                    randomX -= width - randomX + movieWidth + 1;
+                }
+                if (randomX <= 0) {
+                    randomX = 1;
+                }
+                if (randomY + movieHeight >= height) {
+                    randomY -= height - randomY + movieHeight + 1;
+                }
+                if (randomY <= 0) {
+                    randomY = 1;
+                }
+
+                findAPlace = true;
+
+                // Check x and y for overlapping
+                for (var i = 0; i < covered.length; i++) {
+                    var x = covered[i]['x'];
+                    var y = covered[i]['y'];
+                    var w = covered[i]['w'];
+                    var h = covered[i]['h'];
+                    if (randomX < x && randomX + movieWidth >= x) {
+                        if (randomY < y && randomY + movieHeight >= y) {
+                            findAPlace = false;
+                            break;
+                        }
+                        if (randomY >= y && randomY <= y + h && randomY + movieHeight >= y) {
+                            findAPlace = false;
+                            break;
+                        }
+                    }
+                    if (randomX >= x && randomX <= x + w && randomX + movieWidth >= x) {
+                        if (randomY < y && randomY + movieHeight >= y) {
+                            findAPlace = false;
+                            break;
+                        }
+                        if (randomY >= y && randomY <= y + h && randomY + movieHeight >= y) {
+                            findAPlace = false;
+                            break;
+                        }
+                    }
+                }
+            } while (!findAPlace);
+
+            covered.push({'x': randomX, 'y': randomY, 'w': movieWidth, 'h': movieHeight});
 
             svg.append("defs")
                .append("pattern")
                .attr("id", d.id)
                .attr('patternUnits', 'userSpaceOnUse')
+               .attr('x', randomX)
+               .attr('y', randomY)
                .attr('width', movieWidth)
                .attr('height', movieHeight)
                .append("image")
