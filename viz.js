@@ -162,10 +162,9 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .attr('height', movieHeight)
                 .attr("fill", "url(#" + d.id + ")")
                 .attr('class', 'movie');
-        })
+        });
+        console.log('covered lenght: ' + covered.length);
     });
-
-    console.log('stop');
 
     /*var link = svg.append('g')
         .attr('class', 'links')
