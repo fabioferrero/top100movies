@@ -1,16 +1,16 @@
 
-// Create array of links
-var links = [];
-var nodes = [];
-
-// Load movies data
+// Load movies file
 d3.tsv('data/movies.tsv', function(error, data) {
     if(error) throw error;
+    // Load metatada file
     d3.tsv('data/metadata.tsv', function(error, metadata) {
         if(error) throw error;
 
+        // Create array of links (not useful fot this version of code)
+        //var links = [];
+        //var nodes = [];
+
         var numberOfFilms = data.length;
-        console.log(data.length + ' ' + metadata.length);
 
         // Create the similarity matrix
         var similarity = new Array(numberOfFilms);
@@ -18,7 +18,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             similarity[i] = new Array(numberOfFilms);
         }
 
-        // compute some statistic while loading
+        // Compute some statistic while loading
         data.forEach(function(d) {
             var score = 0;
             var critics = [];
@@ -39,15 +39,17 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.poster = elem['Poster'];
         });
 
+        // Filter all films and take only the best, with score > 20
         data = data.filter(function(d) { return d.score > 20; });
         numberOfFilms = data.length;
 
+        // Compute the total score in order to make after the proportion for the covered area
         var totalScore = 0;
 
         // compute the similarity matrix
         for (var i = 0; i < numberOfFilms; i++) {
             similarity[i][i] = 1;
-            nodes.push({'id': data[i].title, 'score': data[i].score})
+            //nodes.push({'id': data[i].title, 'score': data[i].score})
             totalScore += data[i].score;
             for (var j = i+1; j < numberOfFilms; j++) {
                 list1 = data[i]['critics'];
@@ -67,31 +69,32 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 similarity[i][j] = commonCritics / Math.max(list1.length, list2.length);
                 similarity[j][i] = similarity[i][j];
                 if (similarity[i][j] != 0) {
-                    links.push({'source': data[i].title, 'target': data[j].title, 'value': similarity[i][j]});
-                } /*else {
-                    links.push({'source': data[i].title, 'target': data[j].title, 'value': 0.01});
-                }*/
+                    //links.push({'source': data[i].title, 'target': data[j].title, 'value': similarity[i][j]});
+                }
             }
         }
 
+        //data.
+
+        // Take svg container from index.html
         var svg = d3.select('svg'),
         width = svg.attr('width'),
         height = svg.attr('height');
 
-        //var scores = data.map((d) => { return d.score; });
-
         var totalArea = width*height/2.6;
+        // covered array keep track of movies already vizualized in order to
+        // know witch area of the screen is already covered
         var covered = [];
 
         data.forEach((d) => {
-
+            // Compute for each movie the high and with value depending on its score
             var movieArea = Math.floor(totalArea * d.score / totalScore);
             var movieWidth = Math.round(6 * Math.sqrt(movieArea / 54));
             var movieHeight =  Math.round(9 * Math.sqrt(movieArea / 54));
 
             var randomX, randomY, findAPlace;
 
-            do {
+            do { // Try a lot of times while you find a place that not overlap with others movies
                 randomX = Math.floor(Math.random() * width);
                 randomY = Math.floor(Math.random() * height);
 
@@ -140,8 +143,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 }
             } while (!findAPlace);
 
+            // Add movie to covered array
             covered.push({'x': randomX, 'y': randomY, 'w': movieWidth, 'h': movieHeight});
 
+            // Add movie to visualization
             svg.select('g')
                 .append('defs')
                 .append('pattern')
@@ -166,6 +171,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .attr('class', 'movie');
         });
 
+        // Add basic zoom features
         svg.append('rect')
             .attr('class', 'zoom-layer')
             .style('fill', 'none')
@@ -174,6 +180,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             .attr('height', height);
 
         var zoom = d3.zoom()
+            // scale range: from 1 (default size) to 15 times big
             .scaleExtent([1, 15])
             .on('zoom', function () {
                 d3.select('svg')
@@ -182,7 +189,6 @@ d3.tsv('data/movies.tsv', function(error, data) {
             });
 
         var zoomrect = d3.select('svg').select('.zoom-layer').call(zoom);
-        console.log('covered lenght: ' + covered.length);
     });
 
     /*var link = svg.append('g')
