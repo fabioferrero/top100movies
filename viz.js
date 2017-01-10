@@ -6,19 +6,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
     d3.tsv('data/metadata.tsv', function(error, metadata) {
         if(error) throw error;
 
-        // Create array of links (not useful fot this version of code)
-        //var links = [];
-        //var nodes = [];
+        // Keep track of number of generes into the set of movies
+        var genres = [];
 
-        var numberOfFilms = data.length;
-
-        // Create the similarity matrix
-        var similarity = new Array(numberOfFilms);
-        for (var i = 0; i < numberOfFilms; i++) {
-            similarity[i] = new Array(numberOfFilms);
-        }
-
-        // Compute some statistic while loading
+        // Compute some statistic
         data.forEach(function(d) {
             var score = 0;
             var critics = [];
@@ -28,37 +19,54 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 rank = d[critic];
                 if(rank > 0) {
                     score += 11 - rank;
-                    critics.push(critic);
-                } else {
-                    delete d[critic];
+                    critics.push({'critic': critic, 'rank': rank});
                 }
+                delete d[critic];
             }
             d.score = score;
             d.critics = critics;
-            var elem = metadata[index];
-            d.poster = elem['Poster'];
+            d.poster = metadata[index]['poster'];
+            if (metadata[index]['genre'] != undefined) {
+                d.genre = metadata[index]['genre'].split(', ');
+                for (var i = 0; i < d.genre.length; i++) {
+                    if (genres.indexOf(d.genre[i]) == -1) {
+                        genres.push(d.genre[i]);
+                    }
+                }
+            } else {
+                d.genre = undefined;
+            }
         });
+
+        delete genres[genres.indexOf("N/A")];
+        var numberOfGenres = genres.length;
 
         // Filter all films and take only the best, with score > 20
         data = data.filter(function(d) { return d.score > 20; });
         numberOfFilms = data.length;
 
+        // Create the similarity matrix
+        var similarity = new Array(numberOfFilms);
+        for (var i = 0; i < numberOfFilms; i++) {
+            similarity[i] = new Array(numberOfFilms);
+        }
+
         // Compute the total score in order to make after the proportion for the covered area
         var totalScore = 0;
 
-        // compute the similarity matrix
+        // Compute the similarity matrix
         for (var i = 0; i < numberOfFilms; i++) {
             similarity[i][i] = 1;
-            //nodes.push({'id': data[i].title, 'score': data[i].score})
             totalScore += data[i].score;
+            // Evaluate similarity for critics vote
             for (var j = i+1; j < numberOfFilms; j++) {
-                list1 = data[i]['critics'];
-                list2 = data[j]['critics'];
-                commonCritics = 0;
+                var list1 = data[i].critics;
+                var list2 = data[j].critics;
+                var commonCritics = 0;
                 for (var x = 0, y = 0; x < list1.length && y < list2.length;) {
-                    if (list1[x] > list2[y]) {
+                    if (list1[x].critic > list2[y].critic) {
                         y++;
-                    } else if (list1[x] < list2[y]) {
+                    } else if (list1[x].critic < list2[y].critic) {
                         x++;
                     } else {
                         x++;
@@ -68,13 +76,49 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 }
                 similarity[i][j] = commonCritics / Math.max(list1.length, list2.length);
                 similarity[j][i] = similarity[i][j];
-                if (similarity[i][j] != 0) {
-                    //links.push({'source': data[i].title, 'target': data[j].title, 'value': similarity[i][j]});
+            }
+            // Evaluate similarity for genres
+            if (data[i].genres == undefined) continue;
+            for (var j = i+1; j < numberOfFilms; j++) {
+                var list1 = data[i].genres;
+                var list2 = data[j].genres;
+                var commonGenres = 0;
+                if (list2 != undefined) {
+                    if (list1.length > list2.length) {
+                        var min = list1;
+                        list1 = list2;
+                        list2 = min;
+                    }
+                    for (var i = 0; i < list1.length; i++) {
+                        if (list2.indexOf(list1[i]) != -1) {
+                            commonGenres++;
+                        }
+                    }
                 }
+                similarity[i][j] = (similarity[i][j] + commonGenres / numberOfGenres) / 2;
+                similarity[j][i] = similarity[i][j];
             }
         }
 
-        //data.
+        // Create a list of similar movies in each movie field
+        for (var i = 0; i < similarity.length; i++) {
+            var similar = [];
+            for (var j = 0; j < similarity.length; j++) {
+                if (i == j) continue;
+                if (similarity[i][j] != 0) {
+                    similar.push({'title': data[j].title, 'value': similarity[i][j]});
+                }
+            }
+            data[i].similar = similar;
+        }
+
+        // For each movie takes only the first 'howMany' similar
+        var howMany = 5;
+        data.forEach((d) => {
+            var toDelete = d.similar.length - howMany;
+            d.similar.sort((a, b) => { return b.value - a.value; })
+                //.splice(-toDelete, toDelete);
+        });
 
         // Take svg container from index.html
         var svg = d3.select('svg'),
@@ -92,24 +136,24 @@ d3.tsv('data/movies.tsv', function(error, data) {
             var movieWidth = Math.round(6 * Math.sqrt(movieArea / 54));
             var movieHeight =  Math.round(9 * Math.sqrt(movieArea / 54));
 
-            var randomX, randomY, findAPlace;
+            var X, Y, findAPlace;
 
             do { // Try a lot of times while you find a place that not overlap with others movies
-                randomX = Math.floor(Math.random() * width);
-                randomY = Math.floor(Math.random() * height);
+                X = Math.floor(Math.random() * width);
+                Y = Math.floor(Math.random() * height);
 
                 // Check and correct x and y for box boundaries
-                if (randomX + movieWidth >= width) {
-                    randomX -= width - randomX + movieWidth + 1;
+                if (X + movieWidth >= width) {
+                    X -= width - X + movieWidth + 1;
                 }
-                if (randomX <= 0) {
-                    randomX = 1;
+                if (X <= 0) {
+                    X = 1;
                 }
-                if (randomY + movieHeight >= height) {
-                    randomY -= height - randomY + movieHeight + 1;
+                if (Y + movieHeight >= height) {
+                    Y -= height - Y + movieHeight + 1;
                 }
-                if (randomY <= 0) {
-                    randomY = 1;
+                if (Y <= 0) {
+                    Y = 1;
                 }
 
                 findAPlace = true;
@@ -120,22 +164,22 @@ d3.tsv('data/movies.tsv', function(error, data) {
                     var y = covered[i]['y'];
                     var w = covered[i]['w'];
                     var h = covered[i]['h'];
-                    if (randomX < x && randomX + movieWidth >= x) {
-                        if (randomY < y && randomY + movieHeight >= y) {
+                    if (X < x && X + movieWidth >= x) {
+                        if (Y < y && Y + movieHeight >= y) {
                             findAPlace = false;
                             break;
                         }
-                        if (randomY >= y && randomY <= y + h && randomY + movieHeight >= y) {
+                        if (Y >= y && Y <= y + h && Y + movieHeight >= y) {
                             findAPlace = false;
                             break;
                         }
                     }
-                    if (randomX >= x && randomX <= x + w && randomX + movieWidth >= x) {
-                        if (randomY < y && randomY + movieHeight >= y) {
+                    if (X >= x && X <= x + w && X + movieWidth >= x) {
+                        if (Y < y && Y + movieHeight >= y) {
                             findAPlace = false;
                             break;
                         }
-                        if (randomY >= y && randomY <= y + h && randomY + movieHeight >= y) {
+                        if (Y >= y && Y <= y + h && Y + movieHeight >= y) {
                             findAPlace = false;
                             break;
                         }
@@ -144,7 +188,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             } while (!findAPlace);
 
             // Add movie to covered array
-            covered.push({'x': randomX, 'y': randomY, 'w': movieWidth, 'h': movieHeight});
+            covered.push({'x': X, 'y': Y, 'w': movieWidth, 'h': movieHeight});
 
             // Add movie to visualization
             svg.select('g')
@@ -152,8 +196,8 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .append('pattern')
                 .attr('id', d.id)
                 .attr('patternUnits', 'userSpaceOnUse')
-                .attr('x', randomX)
-                .attr('y', randomY)
+                .attr('x', X)
+                .attr('y', Y)
                 .attr('width', movieWidth)
                 .attr('height', movieHeight)
                 .append('image')
@@ -161,10 +205,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .attr('width', movieWidth)
                 .attr('height', movieHeight);
 
-            var movie = svg.select('g')
+            svg.select('g')
                 .append('rect')
-                .attr('x', randomX)
-                .attr('y', randomY)
+                .attr('x', X)
+                .attr('y', Y)
                 .attr('width', movieWidth)
                 .attr('height', movieHeight)
                 .attr('fill', 'url(#' + d.id + ')')
