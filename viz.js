@@ -27,6 +27,11 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.critics = critics;
             d.poster = metadata[index]['poster'];
             d.positioned = false;
+            d.visited = false;
+            d.X = 0;
+            d.Y = 0;
+            d.width = 0;
+            d.height = 0;
             if (metadata[index]['genre'] != undefined) {
                 d.genre = metadata[index]['genre'].split(', ');
                 for (var i = 0; i < d.genre.length; i++) {
@@ -124,92 +129,56 @@ d3.tsv('data/movies.tsv', function(error, data) {
         });
 
         // Take svg container from index.html
-        var svg = d3.select('svg'),
-        width = svg.attr('width'),
-        height = svg.attr('height');
+        var svg = d3.select('svg');
+        var width = svg.attr('width');
+        var height = svg.attr('height');
 
-        var totalArea = width*height/3;
+        var totalArea = width*height/2;
         // covered array keep track of movies already vizualized in order to
         // know witch area of the screen is already covered
         var covered = [];
 
-        var movieArea, movieWidth, movieHeight;
-
         for (var z = 0; z < data.length; z++) {
+            var movie = data[z];
             // Skip if movie already visualizied
-            if (data[z].positioned == true) continue;
+            if (movie.positioned == true) continue;
             // Compute the height and width value depending on movie score
-            movieArea = Math.floor(totalArea * data[z].score / totalScore);
-            movieWidth = Math.round(6 * Math.sqrt(movieArea / 54));
-            movieHeight =  Math.round(9 * Math.sqrt(movieArea / 54));
-
-            var X, Y, find;
+            var movieArea = Math.floor(totalArea * movie.score / totalScore);
+            movie.width = Math.round(6 * Math.sqrt(movieArea / 54));
+            movie.height =  Math.round(9 * Math.sqrt(movieArea / 54));
 
             if (z == 0) {
                 // Place first element in the middle of the canvas
-                X = (width/2) - (movieWidth/2);
-                Y = (height/2) - (movieHeight/2);
+                movie.X = (width/2) - (movie.width/2);
+                movie.Y = (height/2) - (movie.height/2);
             } else {
-                do { // Try a lot of times while you find a place that not overlap with others movies
-                    X = Math.floor(Math.random() * width);
-                    Y = Math.floor(Math.random() * height);
-
-                    // Check and correct x and y for box boundaries
-                    if (X + movieWidth >= width) {
-                        X -= width - X + movieWidth + 1;
+                // Check if one of my similar has already be visualized
+                for (var i = 0; i < movie.similar.length; i++) {
+                    var m = data[movie.similar[i].index];
+                    if (m.positioned == true) {
+                        // If yes, find a position around it
+                        findPositionAround(m, movie);
+                        if (movie.findAPlace == true) break;
                     }
-                    if (X <= 0) {
-                        X = 1;
-                    }
-                    if (Y + movieHeight >= height) {
-                        Y -= height - Y + movieHeight + 1;
-                    }
-                    if (Y <= 0) {
-                        Y = 1;
-                    }
-
-                    find = true;
-
-                    // Check x and y for overlapping
-                    for (var i = 0; i < covered.length; i++) {
-                        var x = covered[i]['x'];
-                        var y = covered[i]['y'];
-                        var w = covered[i]['w'];
-                        var h = covered[i]['h'];
-                        if (X < x && X + movieWidth >= x) {
-                            if (Y < y && Y + movieHeight >= y) {
-                                find = false;
-                                break;
-                            }
-                            if (Y >= y && Y <= y + h && Y + movieHeight >= y) {
-                                find = false;
-                                break;
-                            }
-                        }
-                        if (X >= x && X <= x + w && X + movieWidth >= x) {
-                            if (Y < y && Y + movieHeight >= y) {
-                                find = false;
-                                break;
-                            }
-                            if (Y >= y && Y <= y + h && Y + movieHeight >= y) {
-                                find = false;
-                                break;
-                            }
-                        }
-                    }
-                } while (!find);
+                }
+                if (movie.findAPlace == false) { // Not already find a position
+                    do { // Try a lot of times while you find a place that not overlap with others movies
+                        movie.X = Math.floor(Math.random() * width);
+                        movie.Y = Math.floor(Math.random() * height);
+                        // Check and correct x and y for box boundaries
+                        checkBoundries(movie);
+                        // Check x and y for overlapping
+                        movie.findAPlace = checkOverlapping(movie);
+                    } while (!movie.findAPlace);
+                }
             }
-            // Add movie to covered array
-            covered.push({'x': X, 'y': Y, 'w': movieWidth, 'h': movieHeight});
-            data[z].x = X;
-            data[z].y = Y;
-            data[z].w = movieWidth;
-            data[z].h = movieHeight;
             // Add movie to visualization
-            placeMovie(data[z]);
+            placeMovie(movie);
 
-            placeSimilar(data[z]);
+            placeSimilar(movie);
         }
+
+        console.log(data.filter((m) => { return m.positioned == true}).length);
 
         // Add basic zoom features
         svg.append('rect')
@@ -233,163 +202,166 @@ d3.tsv('data/movies.tsv', function(error, data) {
         function placeSimilar(movie) {
             for (var i = 0; i < movie.similar.length; i++) {
                 // Takes a similar movie
-                var m = movie.similar[i];
-                var sim = m.sim;
-                // Skip if movie already visualizied
-                m = data[m.index];
-                if (m.positioned == true) continue;
-
-                // Evaluate center of circumference of the movie
-                var cx = X + movieWidth/2;
-                var cy = Y + movieHeight/2;
-
-                // Compute the height and width value depending on movie score
-                var mArea = Math.floor(totalArea * m.score / totalScore);
-                var mWidth = Math.round(6 * Math.sqrt(mArea / 54));
-                var mHeight =  Math.round(9 * Math.sqrt(mArea / 54));
-
-                // Evaluate radius
-                var minDist = Math.sqrt(movieWidth*movieWidth + movieHeight*movieHeight)/2 + Math.sqrt(mWidth*mWidth + mHeight*mHeight)/2
-                var r = Math.ceil(minDist); //+ 10/sim;
-                var mX, mY, v = i;
-
-                do {
-                    // This formula takes a random X in the diameter of the circunference around the movie
-                    mX = Math.random()*2*r + cx - r;
-                    // Evaluate the corresponding Y
-                    var aux = mX - cx;
-                    mY = cy - (1-2*((v++)%2))*Math.sqrt(r*r - aux*aux);
-                    if (isNaN(mY)) {
-                        console.log(r + ' ' + (mX - cx));
-                    }
-                    // Modify mX in order to be closer to the similar
-                    aux = Math.abs(mY - cy)+1;
-                    if (mX - cx >= 0) { // m on the right of movie
-                        if (mX - mWidth/2 > cx + movieWidth/2) {
-                            var dist = mX - cx - mWidth/2 - movieWidth/2;
-                            mX -= dist/2 + 2*dist/aux;
-                        }
-                    } else { // m on the left of movie
-                        if (mX + mWidth/2 < cx - movieWidth/2) {
-                            var dist = cx - mX - mWidth/2 - movieWidth/2;
-                            mX += dist/2 + 2*dist/aux;
-                        }
-                    }
-                    mX = Math.floor(mX) - mWidth/2;
-                    mY = Math.floor(mY) - mHeight/2;
-                    // Check and correct x and y for box boundaries
-                    /*if (mX + mWidth >= width) {
-                        mX -= width - mX + mWidth + 1;
-                    }
-                    if (mX <= 0) {
-                        mX = 1;
-                    }
-                    if (mY + mHeight >= height) {
-                        mY -= height - mY + mHeight + 1;
-                    }
-                    if (mY <= 0) {
-                        mY = 1;
-                    }*/
-                    // Check x and y for overlapping
-                    var findAPlace = true;
-                    for (var j = 0; j < covered.length; j++) {
-                        var x = covered[j]['x'];
-                        var y = covered[j]['y'];
-                        var w = covered[j]['w'];
-                        var h = covered[j]['h'];
-                        if (mX < x && mX + mWidth >= x) {
-                            if (mY < y && mY + mHeight >= y) {
-                                findAPlace = false;
-                                break;
-                            }
-                            if (mY >= y && mY <= y + h && mY + mHeight >= y) {
-                                findAPlace = false;
-                                break;
-                            }
-                        }
-                        if (mX >= x && mX <= x + w && mX + mWidth >= x) {
-                            if (mY < y && mY + mHeight >= y) {
-                                findAPlace = false;
-                                break;
-                            }
-                            if (mY >= y && mY <= y + h && mY + mHeight >= y) {
-                                findAPlace = false;
-                                break;
-                            }
-                        }
-                    }
-                } while (!findAPlace);
-
-                // Add movie to covered array
-                covered.push({'x': mX, 'y': mY, 'w': mWidth, 'h': mHeight});
-                m.x = mX;
-                m.y = mY;
-                m.w = mWidth;
-                m.h = mHeight;
-                // Add movie to visualization
-                placeMovie(m);
-            }
-
-            for (var i = 0; i < movie.similar.length; i++) {
                 var m = data[movie.similar[i].index];
+                // Skip if movie already visualizied
                 if (m.positioned == true) continue;
+                // Find a possible position
+                findPositionAround(movie, m);
+                if (m.findAPlace == true) {
+                    // Add movie to visualization
+                    placeMovie(m);
+                }
+            }
+            movie.visited = true;
+            for (var i = 0; i < movie.similar.length; i++) {
+                // Takes a similar movie
+                var m = data[movie.similar[i].index];
+                // Skip if movie already visited
+                if (m.visited == true) continue;
+                // Visualize similar of m
                 placeSimilar(m);
             }
         }
 
-        function placeMovie(d) {
+        function findPositionAround(movie, m) {
+            // Evaluate center of circumference of the movie
+            var cx = movie.X + movie.width/2;
+            var cy = movie.Y + movie.height/2;
+
+            // Compute the height and width value depending on movie score
+            var mArea = Math.floor(totalArea * m.score / totalScore);
+            m.width = Math.round(6 * Math.sqrt(mArea / 54));
+            m.height =  Math.round(9 * Math.sqrt(mArea / 54));
+
+            // Evaluate radius
+            var minDist = Math.sqrt(movie.width*movie.width + movie.height*movie.height)/2 + Math.sqrt(m.width*m.width + m.height*m.height)/2
+            var r = minDist; //+ 10/sim;
+            var v = 1;
+
+            while (!m.findAPlace) {
+                if (v > 10) { // Try a certain number of times
+                    m.findAPlace = false;
+                    break;
+                }
+                // This formula takes a random X in the diameter of the circunference around the movie
+                m.X = Math.floor(Math.random()*2*r + cx - r);
+                // Evaluate the corresponding Y
+                var aux = m.X - cx;
+                m.Y = Math.floor(cy - (1-2*((v++)%2))*Math.sqrt(r*r - aux*aux));
+                if (isNaN(m.Y)) {
+                    m.Y = cy;
+                    //m.X = Math.floor(Math.random() * width);
+                    //m.Y = Math.floor(Math.random() * height);
+                }
+                /*
+                // Modify m.X in order to be closer to the similar
+                aux = Math.abs(m.Y - cy)+1;
+                if (m.X - cx >= 0) { // m on the right of movie
+                    if (m.X - m.width/2 > cx + movie.width/2) {
+                        var dist = m.X - cx - m.width/2 - movie.width/2;
+                        m.X -= dist/2 + 2*dist/aux;
+                    }
+                } else { // m on the left of movie
+                    if (m.X + m.width/2 < cx - movie.width/2) {
+                        var dist = cx - m.X - m.width/2 - movie.width/2;
+                        m.X += dist/2 + 2*dist/aux;
+                    }
+                }
+                */
+                m.X -= m.width/2;
+                m.Y -= m.height/2;
+                // Check and correct x and y for box boundaries
+                checkBoundries(m);
+
+                // Check x and y for overlapping
+                m.findAPlace = checkOverlapping(m);
+
+            }
+        }
+
+        function checkBoundries(m) {
+            if (m.X + m.width >= width) {
+                m.X -= width - m.X + m.width + 1;
+            }
+            if (m.X <= 0) {
+                m.X = 1;
+            }
+            if (m.Y + m.height >= height) {
+                m.Y -= height - m.Y + m.height + 1;
+            }
+            if (m.Y <= 0) {
+                m.Y = 1;
+            }
+        }
+
+        function checkOverlapping(m) {
+            var check = true;
+            for (var j = 0; j < covered.length; j++) {
+                var x = covered[j]['x'];
+                var y = covered[j]['y'];
+                var w = covered[j]['w'];
+                var h = covered[j]['h'];
+                if (m.X < x && m.X + m.width >= x) {
+                    if (m.Y < y && m.Y + m.height >= y) {
+                        check = false;
+                    }
+                    if (m.Y >= y && m.Y <= y + h && m.Y + m.height >= y) {
+                        check = false;
+                    }
+                }
+                if (m.X >= x && m.X <= x + w && m.X + m.width >= x) {
+                    if (m.Y < y && m.Y + m.height >= y) {
+                        check = false;
+                    }
+                    if (m.Y >= y && m.Y <= y + h && m.Y + m.height >= y) {
+                        check = false;
+                    }
+                }
+            }
+            return check;
+        }
+
+        function placeMovie(m) {
+            // Add movie to covered array
+            covered.push({'x': m.X, 'y': m.Y, 'w': m.width, 'h': m.height});
+
             svg.select('g')
                 .append('defs')
                 .append('pattern')
-                .attr('id', d.id)
+                .attr('id', m.id)
                 .attr('patternUnits', 'userSpaceOnUse')
-                .attr('x', d.x)
-                .attr('y', d.y)
-                .attr('width', d.w)
-                .attr('height', d.h)
+                .attr('x', m.X)
+                .attr('y', m.Y)
+                .attr('width', m.width)
+                .attr('height', m.height)
                 .append('image')
-                .attr('xlink:href', d.poster)
-                .attr('width', d.w)
-                .attr('height', d.h);
+                .attr('xlink:href', m.poster)
+                .attr('width', m.width)
+                .attr('height', m.height);
 
             svg.select('g')
                 .append('rect')
-                .attr('x', d.x)
-                .attr('y', d.y)
-                .attr('width', d.w)
-                .attr('height', d.h)
-                .attr('fill', 'url(#' + d.id + ')')
+                .attr('x', m.X)
+                .attr('y', m.Y)
+                .attr('width', m.width)
+                .attr('height', m.height)
+                .attr('fill', 'url(#' + m.id + ')')
                 .attr('class', 'movie')
                 .attr('opacity', 1);
 
-            d.positioned = true;
+            m.positioned = true;
         }
     });
 
-    /*var link = svg.append('g')
-        .attr('class', 'links')
-        .selectAll('line')
-        .data(links)
-        .enter().append('line');
-
-    var node = svg.append('g')
-        .attr('class', 'nodes')
-        .selectAll('circle')
-        .data(nodes)
-        .enter().append('circle')
-        //.attr('r', function(n) { return n.score; })
-        .attr('r', 5)
-        .attr('fill', 'black')
-        //.call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended))
-        ;
-
+    /*
     body.selectAll('.movie')
         .data(data
             .filter(function(d) { return d.score > 20; })
             .sort(function(a, b) { return b.score - a.score; })
         )
         .enter().append('div')
-            .text(function(d) { return d.title; });*/
+            .text(function(d) { return d.title; });
+    */
 });
 
 // Add all interaction features for filters
