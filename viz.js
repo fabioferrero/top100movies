@@ -1,14 +1,13 @@
-
+// Keep all movies information after loading
 var movies;
+// Keep track of number of generes into the set of movies
+var genres = [];
 // Load movies file
 d3.tsv('data/movies.tsv', function(error, data) {
     if(error) throw error;
     // Load metatada file
     d3.tsv('data/metadata.tsv', function(error, metadata) {
         if(error) throw error;
-
-        // Keep track of number of generes into the set of movies
-        var genres = [];
 
         // Compute some statistic
         data.forEach(function(d) {
@@ -371,15 +370,35 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
 // Add all interaction features for filters
 var canvas = d3.select('svg').select('g');
-d3.select("#searchField").on("input change keyup", function() {
-    // Take value from searchField
-    var search = this.value.toLowerCase();
+var str;
+
+d3.select("#searchField").on("change keyup", function() {
+    // Take value from searchField and filter
+    str = this.value.toLowerCase();
+    searchFilter(str);
+});
+
+d3.selectAll('input[name="criteria"]').on("click", function() {
+    // Take value from searchField and filter
+    searchFilter(str);
+});
+
+function searchFilter(search) {
     movies.forEach((m) => {
         var opacity = 1;
+        var doNotMatch;
+        var crit = d3.select('input[name="criteria"]:checked').node().value;
+        switch (crit) {
+            case "title": doNotMatch = !m.title.toLowerCase().startsWith(search);
+                break;
+            case "director": doNotMatch = !m.director.toLowerCase().includes(search);
+                break;
+            default: break;
+        }
         // If doesn't match, change opacity
-        if (!m.title.toLowerCase().startsWith(search)) {
+        if (doNotMatch) {
             opacity = 0.2
         }
         d3.selectAll('#'+m.id).attr('opacity', opacity);
     })
-});
+}
