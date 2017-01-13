@@ -1,4 +1,5 @@
 
+var movies;
 // Load movies file
 d3.tsv('data/movies.tsv', function(error, data) {
     if(error) throw error;
@@ -171,7 +172,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             placeSimilar(movie);
         }
 
-        console.log(data.filter((m) => { return m.positioned == true}).length);
+        movies = data;
 
         // Add basic zoom features
         svg.append('rect')
@@ -183,7 +184,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
         var zoom = d3.zoom()
             // scale range: from 1 (default size) to 15 times big
-            .scaleExtent([0.6, 15])
+            .scaleExtent([0.8, 15])
             .on('zoom', function () {
                 d3.select('svg')
                     .select('g')
@@ -237,10 +238,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
                     break;
                 }
                 // This formula takes a random X in the diameter of the circunference around the movie
-                m.X = Math.floor(Math.random()*2*r + cx - r);
+                m.X = Math.random()*2*r + cx - r;
                 // Evaluate the corresponding Y
                 var aux = m.X - cx;
-                m.Y = Math.floor(cy - (1-2*((v++)%2))*Math.sqrt(r*r - aux*aux));
+                m.Y = cy - (1-2*((v++)%2))*Math.sqrt(r*r - aux*aux);
                 if (isNaN(m.Y)) {
                     m.Y = cy;
                     //m.X = Math.floor(Math.random() * width);
@@ -359,6 +360,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .attr('y', m.Y)
                 .attr('width', m.width)
                 .attr('height', m.height)
+                .attr('id', m.id)
                 .attr('fill', 'url(#' + m.id + ')')
                 .attr('class', 'movie')
                 .attr('opacity', 1);
@@ -366,26 +368,22 @@ d3.tsv('data/movies.tsv', function(error, data) {
             m.positioned = true;
         }
     });
-
-    /*
-    body.selectAll('.movie')
-        .data(data
-            .filter(function(d) { return d.score > 20; })
-            .sort(function(a, b) { return b.score - a.score; })
-        )
-        .enter().append('div')
-            .text(function(d) { return d.title; });
-    */
 });
 
 // Add all interaction features for filters
-$(document).ready(function(){
-    $("#tryopacity").click(function(){
-        $(".movie").attr('opacity', function(i, val) {
-            return val - 0.2;
-        });
+var canvas = d3.select('svg').select('g');
+d3.select("#searchField").on("input change keyup", function() {
+    var title = this.value.toLowerCase();
+    var noMatch = movies.filter((m) => {
+        return !m.title.toLowerCase().startsWith(title);
     });
-    $("#trytransform").click(function(){
-        $(".movie").attr('transform', 'scale(1.2)');
+    var Match = movies.filter((m) => {
+        return m.title.toLowerCase().startsWith(title);
+    });
+    noMatch.forEach((m) => {
+        d3.selectAll('#'+m.id).attr('opacity', 0.2);
+    });
+    Match.forEach((m) => {
+        d3.selectAll('#'+m.id).attr('opacity', 1);
     });
 });

@@ -33,6 +33,10 @@
 			float: right;
 		}
 
+		.filterBox {
+			padding: 0 20px;
+		}
+
 		.movie {
 		}
 
@@ -47,9 +51,31 @@
 			<g></g>
 		</svg>
 		<div class="console">
-			<h2>Console</h2>
-			<input type="textbox"></input>
-			<button id="tryopacity">Try Opacity</button>
+			<h2>Filters</h2>
+			<div class="filterBox">
+				<div class="searchBox">
+					<p>Please enter some filter info with related criteria</p>
+					<input type="textbox" id="searchField" placeholder="Search.."></input>
+					<input type="radio" name="criteria" value="title">Title</input>
+					<input type="radio" name="criteria" value="director">Director</input>
+					<input type="radio" name="criteria" value="actor">Actor</input>
+				</div>
+				<div class="genresBox">
+					<p>Filter by genre</p>
+					<input type="checkbox" name="genre" value="action">Action</input>
+					<input type="checkbox" name="genre" value="action">Action</input>
+					<input type="checkbox" name="genre" value="action">Action</input>
+					<input type="checkbox" name="genre" value="action">Action</input>
+					<input type="checkbox" name="genre" value="action">Action</input>
+					<input type="checkbox" name="genre" value="action">Action</input>
+				</div>
+				<div class="yearRange">
+					<p>Select a range of years</p>
+				</div>
+				<div class="movieDuration">
+					<p>Select a range for movie duration</p>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script src="viz.js"></script>
