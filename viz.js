@@ -162,14 +162,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                     }
                 }
                 if (movie.findAPlace == false) { // Not already find a position
-                    do { // Try a lot of times while you find a place that not overlap with others movies
-                        movie.X = Math.floor(Math.random() * width);
-                        movie.Y = Math.floor(Math.random() * height);
-                        // Check and correct x and y for box boundaries
-                        checkBoundries(movie);
-                        // Check x and y for overlapping
-                        movie.findAPlace = checkOverlapping(movie);
-                    } while (!movie.findAPlace);
+                    findRandomPosition(movie);
                 }
             }
             // Add movie to visualization
@@ -279,19 +272,40 @@ d3.tsv('data/movies.tsv', function(error, data) {
             }
         }
 
-        function checkBoundries(m) {
-            if (m.X + m.width >= width) {
-                m.X -= width - m.X + m.width + 1;
+        function findRandomPosition(m) {
+            do { // Try a lot of times while you find a place that not overlap with others movies
+                m.X = Math.floor(Math.random() * width);
+                m.Y = Math.floor(Math.random() * height);
+                // Check and correct x and y for box boundaries
+                checkBoundries(m);
+                // Check x and y for overlapping
+                m.findAPlace = checkOverlapping(m);
+            } while (!movie.findAPlace);
+        }
+
+        function checkBoundries(w) {
+            var X = w.X, Y = w.Y;
+            if (X <= width) {
+                if (X + w.width >= width) {
+                    X -= width - X + w.width + 1;
+                }
+                if (X <= 0) {
+                    X = 1;
+                }
+            } else {
+                X -= X + w.width - width + 1;
             }
-            if (m.X <= 0) {
-                m.X = 1;
+            if (Y <= height) {
+                if (Y + w.height >= height) {
+                    Y -= height - Y + w.height + 1;
+                }
+                if (Y <= 0) {
+                    Y = 1;
+                }
+            } else {
+                Y -= Y + w.height - height + 1;
             }
-            if (m.Y + m.height >= height) {
-                m.Y -= height - m.Y + m.height + 1;
-            }
-            if (m.Y <= 0) {
-                m.Y = 1;
-            }
+            w.X = X; w.Y = Y;
         }
 
         function checkOverlapping(m) {
