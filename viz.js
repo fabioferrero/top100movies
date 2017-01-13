@@ -362,8 +362,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .attr('height', m.height)
                 .attr('id', m.id)
                 .attr('fill', 'url(#' + m.id + ')')
-                .attr('class', 'movie')
-                .attr('opacity', 1);
+                .attr('class', 'movie');
 
             m.positioned = true;
         }
@@ -373,17 +372,14 @@ d3.tsv('data/movies.tsv', function(error, data) {
 // Add all interaction features for filters
 var canvas = d3.select('svg').select('g');
 d3.select("#searchField").on("input change keyup", function() {
-    var title = this.value.toLowerCase();
-    var noMatch = movies.filter((m) => {
-        return !m.title.toLowerCase().startsWith(title);
-    });
-    var Match = movies.filter((m) => {
-        return m.title.toLowerCase().startsWith(title);
-    });
-    noMatch.forEach((m) => {
-        d3.selectAll('#'+m.id).attr('opacity', 0.2);
-    });
-    Match.forEach((m) => {
-        d3.selectAll('#'+m.id).attr('opacity', 1);
-    });
+    // Take value from searchField
+    var search = this.value.toLowerCase();
+    movies.forEach((m) => {
+        var opacity = 1;
+        // If doesn't match, change opacity
+        if (!m.title.toLowerCase().startsWith(search)) {
+            opacity = 0.2
+        }
+        d3.selectAll('#'+m.id).attr('opacity', opacity);
+    })
 });
