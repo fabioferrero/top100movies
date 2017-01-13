@@ -28,6 +28,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.poster = metadata[index]['poster'];
             d.positioned = false;
             d.visited = false;
+            d.actors = metadata[index]['actors'];
             d.X = 0;
             d.Y = 0;
             d.width = 0;
@@ -392,6 +393,8 @@ function searchFilter(search) {
             case "title": doNotMatch = !m.title.toLowerCase().startsWith(search);
                 break;
             case "director": doNotMatch = !m.director.toLowerCase().includes(search);
+                break;
+            case "actor": doNotMatch = !m.actors.toLowerCase().includes(search);
                 break;
             default: break;
         }
