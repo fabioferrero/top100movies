@@ -34,7 +34,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.width = 0;
             d.height = 0;
             if (metadata[index]['genre'] != undefined) {
-                d.genre = metadata[index]['genre'].split(', ');
+                d.genre = metadata[index]['genre'].toLowerCase().split(', ');
                 for (var i = 0; i < d.genre.length; i++) {
                     if (genres.indexOf(d.genre[i]) == -1) {
                         genres.push(d.genre[i]);
@@ -420,24 +420,30 @@ function removeConstraint(constr) {
 
 function evaluateConstraints() {
     movies.forEach((m) => {
+        if(search == "" && constraints.length == 0) {
+            d3.selectAll('#'+m.id).attr('opacity', 1);
+            return;
+        }
         var opacity = 1;
-        var doNotMatch = true;
+        var match1 = false, match2 = true;
         var crit = d3.select('input[name="criteria"]:checked').node().value;
         switch (crit) {
-            case "title": doNotMatch = !m.title.toLowerCase().startsWith(search);
+            case "title": match1 = m.title.toLowerCase().startsWith(search);
                 break;
-            case "director": doNotMatch = !m.director.toLowerCase().includes(search);
+            case "director": match1 = m.director.toLowerCase().includes(search);
                 break;
-            case "actor": doNotMatch = !m.actors.toLowerCase().includes(search);
+            case "actor": match1 = m.actors.toLowerCase().includes(search);
                 break;
             default: break;
         }
-        // If doesn't match, change opacity
-        if (doNotMatch) {
-            opacity = 0.2;
+        if (constraints.length > 0) {
+            match2 = constraints.every((c) => {
+                return m.genre.indexOf(c) != -1;
+            });
         }
-        if(search == "" && constraints.length == 0) {
-            opacity = 1;
+        // If doesn't match, change opacity
+        if (!(match1 && match2)) {
+            opacity = 0.2;
         }
         d3.selectAll('#'+m.id).attr('opacity', opacity);
     })
