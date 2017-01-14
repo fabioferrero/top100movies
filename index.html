@@ -54,9 +54,23 @@
 		    width: 50%;
 		}
 
+		#yearBox {
+			margin-top: 260px;
+		}
+
+		#years {
+			font-size: 1.1em;
+		}
+
+		#clear {
+			margin: 0 auto;
+		}
+
 	</style>
     <script src="d3/d3.js"></script>
-	<script src="jquery-3.1.1.js"></script>
+	<link rel="stylesheet" href="jquery/jquery-ui.css">
+	<script src="jquery/external/jquery/jquery.js"></script>
+	<script src="jquery/jquery-ui.js"></script>
 </head>
 <body>
 	<h1>InfoVis Project</h1>
@@ -68,16 +82,23 @@
 			<h2>Filters</h2>
 			<div class="filterBox">
 				<div id="searchBox">
-					<p>Please enter some filter info with related criteria</p>
+					<p>Please enter some filter with related criteria:</p>
 					<input type="textbox" id="searchField" placeholder="Search.."></input>
 					<input type="radio" name="criteria" value="title" checked>Title</input>
 					<input type="radio" name="criteria" value="director">Director</input>
 					<input type="radio" name="criteria" value="actor">Actor</input>
 				</div>
 				<div id="genresBox">
-					<p>Select by genre</p>
+					<p>Filter by genre:</p>
 					<ul id="genresList">
 					</ul>
+				</div>
+				<div id="yearBox">
+					<p>
+						<label for="years">Filter by year:</label>
+						<input type="text" id="years" readonly style="border:0; color:#f6931f; font-weight:bold;">
+					</p>
+					<div id="slider-years"></div>
 				</div>
 			</div>
 		</div>

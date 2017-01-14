@@ -1,5 +1,6 @@
 // Keep all movies information after loading
 var movies;
+var minYear, maxYear;
 // Keep track of number of generes into the set of movies
 var genres = [];
 // Load movies file
@@ -33,6 +34,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.Y = 0;
             d.width = 0;
             d.height = 0;
+            d.year = Number(d.year);
             if (metadata[index]['genre'] != undefined) {
                 d.genre = metadata[index]['genre'].toLowerCase().split(', ');
                 for (var i = 0; i < d.genre.length; i++) {
@@ -194,6 +196,12 @@ d3.tsv('data/movies.tsv', function(error, data) {
         }
 
         movies = data;
+        /* // Not useful for this version
+        minYear = movies.map((m) => { return m.year; })
+                            .reduce((min, y) => { return y < min ? y : min; }, 2020);
+        maxYear = movies.map((m) => { return m.year; })
+                            .reduce((max, y) => { return y > max ? y : max; }, 0);
+        */
 
         // Add basic zoom features
         svg.append('rect')
@@ -395,6 +403,27 @@ var canvas = d3.select('svg').select('g');
 var search = "";
 var constraints = [];
 
+// Add slider for years
+$(function() {
+    $("#slider-years").slider({
+        range: true,
+        min: 2000,
+        max: 2016,
+        values: [2000, 2016],
+        slide: function( event, ui ) {
+            $("#years").val(ui.values[0]+" - "+ui.values[1]);
+            minYear = ui.values[0];
+            maxYear = ui.values[1];
+            evaluateConstraints();
+        }
+    });
+    $("#years").val(
+        $("#slider-years").slider("values", 0)+" - "+$("#slider-years").slider("values", 1)
+    );
+    minYear = 2000;
+    maxYear = 2016;
+});
+
 d3.select("#searchField").on("change keyup", function() {
     // Take value from searchField and filter
     search = this.value.toLowerCase();
@@ -402,30 +431,32 @@ d3.select("#searchField").on("change keyup", function() {
 });
 
 d3.selectAll('input[name="criteria"]').on("click", function() {
-    // Take value from searchField and filter
+    // Ecaluate filters
     evaluateConstraints();
 });
 
 d3.select('#genresList').selectAll('li');
 
 function addConstraint(constr) {
+    // Add a new constraint and filter
     constraints.push(constr);
     evaluateConstraints();
 }
 
 function removeConstraint(constr) {
+    // Remove a constraint and filter
     constraints.splice(constraints.indexOf(constr), 1);
     evaluateConstraints();
 }
 
 function evaluateConstraints() {
     movies.forEach((m) => {
-        if(search == "" && constraints.length == 0) {
+        if(search == "" && constraints.length == 0 && minYear == 2000 && maxYear == 2016) {
             d3.selectAll('#'+m.id).attr('opacity', 1);
             return;
         }
         var opacity = 1;
-        var match1 = false, match2 = true;
+        var match1 = false, match2 = true, match3 = true;
         var crit = d3.select('input[name="criteria"]:checked').node().value;
         switch (crit) {
             case "title": match1 = m.title.toLowerCase().startsWith(search);
@@ -436,13 +467,12 @@ function evaluateConstraints() {
                 break;
             default: break;
         }
-        if (constraints.length > 0) {
-            match2 = constraints.every((c) => {
-                return m.genre.indexOf(c) != -1;
-            });
-        }
+        match2 = constraints.every((c) => {
+            return m.genre.indexOf(c) != -1;
+        });
+        match3 = (m.year >= minYear && m.year <= maxYear) ? true : false;
         // If doesn't match, change opacity
-        if (!(match1 && match2)) {
+        if (!(match1 && match2 && match3)) {
             opacity = 0.2;
         }
         d3.selectAll('#'+m.id).attr('opacity', opacity);
