@@ -29,7 +29,7 @@
 			border: 2px solid #999;
 			border-radius: 4px;
 			width: 29%;
-			height: 600px;
+			height: 700px;
 			float: right;
 		}
 
@@ -37,7 +37,21 @@
 			padding: 0 20px;
 		}
 
-		.movie {
+		input[name="genre"] {
+		    vertical-align: middle;
+		    position: relative;
+		    bottom: 1px;
+			margin-right: 5px;
+		}
+
+		#genresList ul {
+		    display: block;
+		}
+
+		#genresList li {
+		    display: block;
+		    float: left;
+		    width: 50%;
 		}
 
 	</style>
@@ -47,28 +61,23 @@
 <body>
 	<h1>InfoVis Project</h1>
 	<div class="container">
-		<svg width="950" height="600">
+		<svg width="950" height="700">
 			<g></g>
 		</svg>
 		<div class="console">
 			<h2>Filters</h2>
 			<div class="filterBox">
-				<div class="searchBox">
+				<div id="searchBox">
 					<p>Please enter some filter info with related criteria</p>
 					<input type="textbox" id="searchField" placeholder="Search.."></input>
 					<input type="radio" name="criteria" value="title" checked>Title</input>
 					<input type="radio" name="criteria" value="director">Director</input>
 					<input type="radio" name="criteria" value="actor">Actor</input>
 				</div>
-				<div class="genresBox">
-					<p>Filter by genre</p>
-					<input type="checkbox" name="genre" value="action">Action</input>
-				</div>
-				<div class="yearRange">
-					<p>Select a range of years</p>
-				</div>
-				<div class="movieDuration">
-					<p>Select a range for movie duration</p>
+				<div id="genresBox">
+					<p>Select by genre</p>
+					<ul id="genresList">
+					</ul>
 				</div>
 			</div>
 		</div>

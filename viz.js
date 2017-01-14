@@ -45,8 +45,8 @@ d3.tsv('data/movies.tsv', function(error, data) {
             }
         });
 
-        delete genres[genres.indexOf("N/A")];
-        var numberOfGenres = genres.length;
+        //delete genres[genres.indexOf("N/A")];
+        var numberOfGenres = genres.length-1;
 
         // Filter all films and take only the best, with score > 20
         data = data.filter((d) => { return d.score > 20; })
@@ -104,7 +104,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                         }
                     }
                 }
-                similarity[i][j] = (similarity[i][j] + commonGenres / numberOfGenres) / 2;
+                similarity[i][j] = (0.4*similarity[i][j] + 0.6*commonGenres / numberOfGenres);
                 similarity[j][i] = similarity[i][j];
             }
         }
@@ -129,12 +129,26 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .splice(-toDelete, toDelete);
         });
 
+        //Add check button for genres
+        var enter = d3.select('#genresBox').select('ul').selectAll('label')
+            .data(genres)
+            .enter().append('li');
+
+        enter.append('input')
+            .attr('type', 'checkbox')
+            .attr('name', 'genre')
+            .attr('id', (g) => { return String(g).toLowerCase(); })
+            .attr('value', (g) => { return String(g).toLowerCase(); });
+        enter.append('label')
+            .attr('for', (g) => { return String(g).toLowerCase(); })
+            .text(String);
+
         // Take svg container from index.html
         var svg = d3.select('svg');
         var width = svg.attr('width');
         var height = svg.attr('height');
 
-        var totalArea = width*height/2;
+        var totalArea = width*height/1.8;
         // covered array keep track of movies already vizualized in order to
         // know witch area of the screen is already covered
         var covered = [];
@@ -371,7 +385,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
 // Add all interaction features for filters
 var canvas = d3.select('svg').select('g');
-var str;
+var str = "";
 
 d3.select("#searchField").on("change keyup", function() {
     // Take value from searchField and filter
@@ -400,7 +414,10 @@ function searchFilter(search) {
         }
         // If doesn't match, change opacity
         if (doNotMatch) {
-            opacity = 0.2
+            opacity = 0.2;
+        }
+        if(search == "") {
+            opacity = 1;
         }
         d3.selectAll('#'+m.id).attr('opacity', opacity);
     })
