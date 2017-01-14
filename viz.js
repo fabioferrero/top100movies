@@ -138,7 +138,14 @@ d3.tsv('data/movies.tsv', function(error, data) {
             .attr('type', 'checkbox')
             .attr('name', 'genre')
             .attr('id', (g) => { return String(g).toLowerCase(); })
-            .attr('value', (g) => { return String(g).toLowerCase(); });
+            .attr('value', (g) => { return String(g).toLowerCase(); })
+            .on("change", function() {
+                if (this.checked == true) {
+                    addConstraint(this.value);
+                } else {
+                    removeConstraint(this.value);
+                }
+            });
         enter.append('label')
             .attr('for', (g) => { return String(g).toLowerCase(); })
             .text(String);
@@ -385,23 +392,36 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
 // Add all interaction features for filters
 var canvas = d3.select('svg').select('g');
-var str = "";
+var search = "";
+var constraints = [];
 
 d3.select("#searchField").on("change keyup", function() {
     // Take value from searchField and filter
-    str = this.value.toLowerCase();
-    searchFilter(str);
+    search = this.value.toLowerCase();
+    evaluateConstraints();
 });
 
 d3.selectAll('input[name="criteria"]').on("click", function() {
     // Take value from searchField and filter
-    searchFilter(str);
+    evaluateConstraints();
 });
 
-function searchFilter(search) {
+d3.select('#genresList').selectAll('li');
+
+function addConstraint(constr) {
+    constraints.push(constr);
+    evaluateConstraints();
+}
+
+function removeConstraint(constr) {
+    constraints.splice(constraints.indexOf(constr), 1);
+    evaluateConstraints();
+}
+
+function evaluateConstraints() {
     movies.forEach((m) => {
         var opacity = 1;
-        var doNotMatch;
+        var doNotMatch = true;
         var crit = d3.select('input[name="criteria"]:checked').node().value;
         switch (crit) {
             case "title": doNotMatch = !m.title.toLowerCase().startsWith(search);
@@ -416,7 +436,7 @@ function searchFilter(search) {
         if (doNotMatch) {
             opacity = 0.2;
         }
-        if(search == "") {
+        if(search == "" && constraints.length == 0) {
             opacity = 1;
         }
         d3.selectAll('#'+m.id).attr('opacity', opacity);
