@@ -1,50 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Top 100 Movies</title>
-	<!--<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">-->
-	<link rel="stylesheet" href="/stylesheets/screen.css" media="screen, projection" type="text/css" />
-	<link rel="stylesheet" href="jquery/jquery-ui.css" />
 	<link rel="stylesheet" href="stylesheets/font-awesome.min.css" />
-	<link rel="stylesheet" href="stylesheets/popup.css" />
-	<link rel="stylesheet" href="stylesheets/mystyles.css" />
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="jquery/jquery-ui.min.css" />
     <script src="d3/d3.js"></script>
 	<script src="jquery/external/jquery/jquery.js"></script>
-	<script src="jquery/jquery-ui.js"></script>
+	<script src="jquery/jquery-ui.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="stylesheets/popup.css" />
+	<link rel="stylesheet" href="stylesheets/mystyles.css" />
 </head>
 <body>
-	<h1>InfoVis Project</h1>
-	<div class="container">
-		<svg width="950" height="700">
-			<g></g>
-		</svg>
-		<div class="console">
-			<h2>Filters</h2>
-			<div class="filterBox">
-				<div id="searchBox">
-					<p>Please enter some filter with related criteria:</p>
-					<input type="textbox" id="searchField" placeholder="Search.."></input>
-					<input type="radio" name="criteria" value="title" checked>Title</input>
-					<input type="radio" name="criteria" value="director">Director</input>
-					<input type="radio" name="criteria" value="actor">Actor</input>
-				</div>
-				<div id="genresBox">
-					<p>Filter by genre:</p>
-					<ul id="genresList">
-					</ul>
-				</div>
-				<div id="yearBox">
-					<p>
-						<label for="years">Filter by year:</label>
-						<input type="text" id="years" readonly style="border:0; color:#007fed; font-weight:bold;">
-					</p>
-					<div id="slider-years"></div>
-				</div>
+	<div class="container-fluid">
+		<h1>InfoViz Project <small>Top 100 movies</small></h1>
+		<div class="raw">
+			<div class="col-md-8">
+				<svg>
+					<g></g>
+				</svg>
 			</div>
-			<button class="fancy-btn">Clear Zoom</button>
+			<div class="col-md-4">
+				<h2>Filters</h2>
+				<div class="filterBox">
+					<div id="searchBox" class="form-inline">
+						<h4>Search by title, director or actor</h4>
+						<div class="form-group">
+							<input class="form-control" type="textbox" id="searchField" placeholder="Search.."></input>
+							<label class="radio-inline"><input type="radio" name="criteria" value="title" checked/>Title</label>
+							<label class="radio-inline"><input type="radio" name="criteria" value="director"/>Director</label>
+							<label class="radio-inline"><input type="radio" name="criteria" value="actor"/>Actor</label>
+						</div>
+					</div>
+					<div id="genresBox" class="clearfix">
+						<h4>Filter by genre</h4>
+					</div>
+					<div id="yearBox">
+						<h4>
+							<label for="years">Filter by year</label>
+							<input type="text" id="years" readonly style="border:0; color:#007fed;">
+						</h4>
+						<div id="slider-years"></div>
+					</div>
+				</div>
+				<button id="clear" class="btn btn-primary center-block">Clear Filters</button>
+			</div>
 		</div>
 	</div>
 	<div class="modal-frame">
@@ -53,30 +57,34 @@
 	  			<div class="button close">
 					<i class="fa fa-close"></i>
 				</div>
-	  			<div class="modal-body">
-					<img id="poster" />
-					<div class="info">
-						<h3 id="title">Title</h3>
-						<p>
-							<span id="year" class="label label-default"></span>
-							<span id="genres" class="label label-default"></span>
-							<span id="duration" class="label label-default"></span>
-							<span id="country" class="label label-default"></span>
-						</p>
-						<p>
-							<span id="rank1" class="label label-default"></span>
-							<span id="rank2" class="label label-default"></span>
-						</p>
-		    			<p id="plot"></p>
-						<p id="director"></p>
-						<p id="actors" class="ps"></p>
-						<p class="similar">
-							<img id="similar1" />
-							<img id="similar2" />
-							<img id="similar3" />
-							<img id="similar4" />
-							<img id="similar5" />
-						</p>
+	  			<div class="modal-body container">
+					<div class="raw">
+						<div class="col-xs-6">
+							<img id="poster" class=""/>
+						</div>
+						<div class="col-xs-6">
+							<h3 id="title">Title</h3>
+							<p>
+								<span id="year" class="label label-default"></span>
+								<span id="genres" class="label label-default"></span>
+								<span id="duration" class="label label-default"></span>
+								<span id="country" class="label label-default"></span>
+							</p>
+							<p>
+								<span id="rank1" class="label label-default"></span>
+								<span id="rank2" class="label label-default"></span>
+							</p>
+			    			<p id="plot"></p>
+							<p id="director"></p>
+							<p id="actors" class="ps"></p>
+							<p class="similar">
+								<img id="similar1" />
+								<img id="similar2" />
+								<img id="similar3" />
+								<img id="similar4" />
+								<img id="similar5" />
+							</p>
+						</div>
 					</div>
 	  			</div>
 			</div>

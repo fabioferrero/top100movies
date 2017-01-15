@@ -138,9 +138,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
         });
 
         //Add check button for genres
-        var enter = d3.select('#genresBox').select('ul').selectAll('label')
+        var enter = d3.select('#genresBox').selectAll('label')
             .data(genres)
-            .enter().append('li');
+            .enter().append('div')
+            .attr('class', 'checkbox');
 
         enter.append('input')
             .attr('type', 'checkbox')
@@ -160,8 +161,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
         // Take svg container from index.html
         var svg = d3.select('svg');
-        var width = svg.attr('width');
-        var height = svg.attr('height');
+        //var width = svg.attr('width');
+        //var height = svg.attr('height');
+        var width = svg.node().getBoundingClientRect().width;
+        var height = svg.node().getBoundingClientRect().height;
 
         var totalArea = width*height/1.8;
         // covered array keep track of movies already vizualized in order to
@@ -221,6 +224,10 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
         d3.select('svg').call(zoom);
 
+        d3.select('button#clear').on('click', function(){
+
+        });
+
         // Add popup-on-click feature
         d3.select('svg').select('g').selectAll('rect.movie').on("click", function(){
             // Add all informations to the popup
@@ -243,7 +250,9 @@ d3.tsv('data/movies.tsv', function(error, data) {
             popup.select('#director').text('Director: '+m.director);
             popup.select('#actors').text('Actors: '+m.actors);
             for (var h = 0; h < m.similar.length; h++) {
-                popup.select('#similar'+(h+1)).attr('src', movies[m.similar[h].index].poster);
+                popup.select('#similar'+(h+1))
+                    .attr('src', movies[m.similar[h].index].poster)
+                    .attr('class', 'img-thumbnail');
             }
             // Show Popup
             $overlay.addClass('state-show');
@@ -516,7 +525,7 @@ function evaluateConstraints() {
         match3 = (m.year >= minYear && m.year <= maxYear) ? true : false;
         // If doesn't match, change opacity
         if (!(match1 && match2 && match3)) {
-            opacity = 0.2;
+            opacity = 0.1;
         }
         d3.selectAll('#'+m.id).attr('opacity', opacity);
     })
