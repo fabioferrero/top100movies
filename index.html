@@ -2,79 +2,15 @@
 <html>
 <head>
 	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Top 100 Movies</title>
-	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
-	<style type="text/css" media="screen, print">
-
-        body {
-            margin: 30px 3%;
-            font-family: sans-serif;
-			align-content: center;
-        }
-
-		svg {
-			border: 2px solid #999;
-			border-radius: 4px;
-		}
-
-		h1, h2, h3 {
-			margin: 10px;
-		}
-
-		.container {
-			margin: 0 auto;
-			align-content: center;
-		}
-
-		.console {
-			border: 2px solid #999;
-			border-radius: 4px;
-			width: 29%;
-			height: 700px;
-			float: right;
-		}
-
-		.filterBox {
-			padding: 0 20px;
-		}
-
-		input[name="genre"] {
-		    vertical-align: middle;
-		    position: relative;
-		    bottom: 1px;
-			margin-right: 5px;
-		}
-
-		#genresList ul {
-		    display: block;
-		}
-
-		#genresList li {
-		    display: block;
-		    float: left;
-		    width: 50%;
-		}
-
-		#yearBox {
-			margin-top: 260px;
-		}
-
-		#years {
-			font-size: 1.1em;
-		}
-
-		#clear {
-			margin: 0 auto;
-		}
-
-		rect.movie:hover {
-			border-color: red;
-			border-width: 3px;
-		}
-	</style>
+	<!--<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">-->
+	<link rel="stylesheet" href="/stylesheets/screen.css" media="screen, projection" type="text/css" />
 	<link rel="stylesheet" href="jquery/jquery-ui.css" />
-	<link rel="stylesheet" href="stylesheets/popup.css">
-	<link rel="stylesheet" href="stylesheets/font-awesome.min.css">
+	<link rel="stylesheet" href="stylesheets/font-awesome.min.css" />
+	<link rel="stylesheet" href="stylesheets/popup.css" />
+	<link rel="stylesheet" href="stylesheets/mystyles.css" />
     <script src="d3/d3.js"></script>
 	<script src="jquery/external/jquery/jquery.js"></script>
 	<script src="jquery/jquery-ui.js"></script>
@@ -118,11 +54,29 @@
 					<i class="fa fa-close"></i>
 				</div>
 	  			<div class="modal-body">
-					<img class="poster" />
+					<img id="poster" />
 					<div class="info">
-						<h3 class="title">Title</h3>
-		    			<p class="plot">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-		    			<p class="ps">Suca</p>
+						<h3 id="title">Title</h3>
+						<p>
+							<span id="year" class="label label-default"></span>
+							<span id="genres" class="label label-default"></span>
+							<span id="duration" class="label label-default"></span>
+							<span id="country" class="label label-default"></span>
+						</p>
+						<p>
+							<span id="rank1" class="label label-default"></span>
+							<span id="rank2" class="label label-default"></span>
+						</p>
+		    			<p id="plot"></p>
+						<p id="director"></p>
+						<p id="actors" class="ps"></p>
+						<p class="similar">
+							<img id="similar1" />
+							<img id="similar2" />
+							<img id="similar3" />
+							<img id="similar4" />
+							<img id="similar5" />
+						</p>
 					</div>
 	  			</div>
 			</div>

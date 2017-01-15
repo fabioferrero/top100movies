@@ -35,8 +35,13 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.width = 0;
             d.height = 0;
             d.year = Number(d.year);
+            d.runtime = metadata[index]['runtime'];
+            d.country = metadata[index]['country'];
+            d.imdbRating = metadata[index]['imdbRating'];
+            d.plot = metadata[index]['plot'];
             if (metadata[index]['genre'] != undefined) {
                 d.genre = metadata[index]['genre'].toLowerCase().split(', ');
+                d.genString = metadata[index]['genre'];
                 for (var i = 0; i < d.genre.length; i++) {
                     if (genres.indexOf(d.genre[i]) == -1) {
                         genres.push(d.genre[i]);
@@ -44,6 +49,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 }
             } else {
                 d.genre = undefined;
+                d.genString = undefined;
             }
         });
 
@@ -106,7 +112,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                         }
                     }
                 }
-                similarity[i][j] = (0.4*similarity[i][j] + 0.6*commonGenres / numberOfGenres);
+                similarity[i][j] = (0.3*similarity[i][j] + 0.7*commonGenres / numberOfGenres);
                 similarity[j][i] = similarity[i][j];
             }
         }
@@ -206,7 +212,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
         // Add basic zoom features
         var zoom = d3.zoom()
             // scale range: from 1 (default size) to 15 times big
-            .scaleExtent([0.8, 15])
+            .scaleExtent([0.95, 15])
             .on('zoom', function () {
                 d3.select('svg')
                     .select('g')
@@ -217,10 +223,29 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
         // Add popup-on-click feature
         d3.select('svg').select('g').selectAll('rect.movie').on("click", function(){
+            // Add all informations to the popup
             $modal = $('.modal-frame');
             $overlay = $('.modal-overlay');
-            // Add all informations to the popup
-            
+            // Find the right movie into data
+            var m = movies.find((d) => { return d.id == this.id; });
+            // Select popup
+            var popup = d3.select('.modal-body');
+            // Fill informations
+            popup.select('#poster').attr('src', m.poster);
+            popup.select('#title').text(m.title);
+            popup.select('#year').text(m.year);
+            popup.select('#genres').text(m.genString);
+            popup.select('#duration').text(m.runtime);
+            popup.select('#country').text(m.country);
+            popup.select('#rank1').text('Top100: '+(m.index+1));
+            popup.select('#rank2').text('IMDb: ' + m.imdbRating);
+            popup.select('#plot').text(m.plot);
+            popup.select('#director').text('Director: '+m.director);
+            popup.select('#actors').text('Actors: '+m.actors);
+            for (var h = 0; h < m.similar.length; h++) {
+                popup.select('#similar'+(h+1)).attr('src', movies[m.similar[h].index].poster);
+            }
+            // Show Popup
             $overlay.addClass('state-show');
             $modal.removeClass('state-leave').addClass('state-appear');
         });
