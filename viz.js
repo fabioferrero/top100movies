@@ -225,7 +225,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
         d3.select('svg').call(zoom);
 
         d3.select('button#clear').on('click', function(){
-
+        window.location.reload(false);
         });
 
         // Add popup-on-click feature
