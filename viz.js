@@ -204,13 +204,6 @@ d3.tsv('data/movies.tsv', function(error, data) {
         */
 
         // Add basic zoom features
-        svg.append('rect')
-            .attr('class', 'zoom-layer')
-            .style('fill', 'none')
-            .style('pointer-events', 'all')
-            .attr('width', width)
-            .attr('height', height);
-
         var zoom = d3.zoom()
             // scale range: from 1 (default size) to 15 times big
             .scaleExtent([0.8, 15])
@@ -220,7 +213,17 @@ d3.tsv('data/movies.tsv', function(error, data) {
                     .attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')');
             });
 
-        var zoomrect = d3.select('svg').select('.zoom-layer').call(zoom);
+        d3.select('svg').call(zoom);
+
+        // Add popup-on-click feature
+        d3.select('svg').select('g').selectAll('rect.movie').on("click", function(){
+            $modal = $('.modal-frame');
+            $overlay = $('.modal-overlay');
+            // Add all informations to the popup
+            
+            $overlay.addClass('state-show');
+            $modal.removeClass('state-leave').addClass('state-appear');
+        });
 
         function placeSimilar(movie) {
             for (var i = 0; i < movie.similar.length; i++) {
@@ -391,7 +394,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                 .attr('height', m.height)
                 .attr('id', m.id)
                 .attr('fill', 'url(#' + m.id + ')')
-                .attr('class', 'movie');
+                .attr('class', 'movie open');
 
             m.positioned = true;
         }
@@ -435,7 +438,22 @@ d3.selectAll('input[name="criteria"]').on("click", function() {
     evaluateConstraints();
 });
 
-d3.select('#genresList').selectAll('li');
+$(document).on('ready', function(){
+    $modal = $('.modal-frame');
+    $overlay = $('.modal-overlay');
+
+    /* Need this to clear out the keyframe classes so they dont clash with each other between ener/leave. Cheers. */
+    $modal.bind('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e){
+      if($modal.hasClass('state-leave')) {
+        $modal.removeClass('state-leave');
+      }
+    });
+
+    $('.close').on('click', function(){
+      $overlay.removeClass('state-show');
+      $modal.removeClass('state-appear').addClass('state-leave');
+    });
+  });
 
 function addConstraint(constr) {
     // Add a new constraint and filter

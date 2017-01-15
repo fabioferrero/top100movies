@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
     <title>Top 100 Movies</title>
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
 	<style type="text/css" media="screen, print">
 
         body {
@@ -66,9 +67,15 @@
 			margin: 0 auto;
 		}
 
+		rect.movie:hover {
+			border-color: red;
+			border-width: 3px;
+		}
 	</style>
+	<link rel="stylesheet" href="jquery/jquery-ui.css" />
+	<link rel="stylesheet" href="stylesheets/popup.css">
+	<link rel="stylesheet" href="stylesheets/font-awesome.min.css">
     <script src="d3/d3.js"></script>
-	<link rel="stylesheet" href="jquery/jquery-ui.css">
 	<script src="jquery/external/jquery/jquery.js"></script>
 	<script src="jquery/jquery-ui.js"></script>
 </head>
@@ -96,13 +103,32 @@
 				<div id="yearBox">
 					<p>
 						<label for="years">Filter by year:</label>
-						<input type="text" id="years" readonly style="border:0; color:#f6931f; font-weight:bold;">
+						<input type="text" id="years" readonly style="border:0; color:#007fed; font-weight:bold;">
 					</p>
 					<div id="slider-years"></div>
 				</div>
 			</div>
+			<button class="fancy-btn">Clear Zoom</button>
 		</div>
 	</div>
+	<div class="modal-frame">
+		<div class="modal">
+		    <div class="modal-inset">
+	  			<div class="button close">
+					<i class="fa fa-close"></i>
+				</div>
+	  			<div class="modal-body">
+					<img class="poster" />
+					<div class="info">
+						<h3 class="title">Title</h3>
+		    			<p class="plot">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+		    			<p class="ps">Suca</p>
+					</div>
+	  			</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-overlay"></div>
 	<script src="viz.js"></script>
 </body>
 </html>
