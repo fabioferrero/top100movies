@@ -1,0 +1,47 @@
+
+body {
+    font-family: sans-serif;
+}
+
+svg {
+    border: 2px solid #999;
+    border-radius: 4px;
+}
+
+.console {
+    border: 2px solid #999;
+    border-radius: 4px;
+    width: 29%;
+    height: 700px;
+    float: right;
+}
+
+input[name="genre"] {
+    vertical-align: middle;
+    position: relative;
+    bottom: 1px;
+    margin-right: 5px;
+}
+
+#genresList li {
+    display: block;
+    float: left;
+    width: 50%;
+}
+
+#years {
+    font-size: 1.1em;
+}
+
+#plot {
+    max-width: 400px;
+}
+
+.similar img {
+    display: inline;
+    width: 50px;
+}
+
+#poster {
+    width: 100px;
+}
