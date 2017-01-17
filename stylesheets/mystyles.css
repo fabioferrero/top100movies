@@ -29,7 +29,10 @@ div.checkbox {
     height: 80%;
 }
 
-.movie-info {;
+.movie-img:hover {
+    border-color: #aaa;
+    border-width: 2px;
+    border-radius: 3px;
 }
 
 #main {

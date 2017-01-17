@@ -251,9 +251,9 @@ d3.tsv('data/movies.tsv', function(error, data) {
             for (var h = 0; h < m.similar.length; h++) {
                 popup.select('#similar'+(h+1))
                     .attr('src', movies[m.similar[h].index].poster)
-                    .attr('class', 'img-thumbnail')
-                    .attr('id', movies[m.similar[h].index].id)
-                    .on("click", callPopup);
+                    .attr('class', 'img-thumbnail'); // Add movie-img to seem clickable
+                    //.attr('id', movies[m.similar[h].index].id);
+                    //.on("click", callPopup);
             }
             // Show Popup
             $overlay.addClass('state-show');
