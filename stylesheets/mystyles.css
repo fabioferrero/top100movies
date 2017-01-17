@@ -25,6 +25,7 @@ div.checkbox {
     margin-bottom: 20px;
 }
 
-#poster {
-    
+#searchField {
+    width: 40%;
+    margin-right: 10px;
 }
