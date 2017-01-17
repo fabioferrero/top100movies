@@ -18,12 +18,18 @@ div.checkbox {
 .movie:hover {
     stroke: #aaa;
     stroke-width: 2px;
-    transition: stroke 1s;
 }
 
 .similar img {
     display: inline;
     width: 18%;
+}
+
+.poster img {
+    height: 80%;
+}
+
+.movie-info {;
 }
 
 #main {

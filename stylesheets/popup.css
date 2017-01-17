@@ -138,8 +138,10 @@
   position: relative;
   padding: 60px;
   background-color: white;
-  min-width: 320px;
-  min-height: 126px;
+  min-width: 800px;
+  min-height: 570px;
+  width: 80%;
+  height: 80%;
   margin: auto;
   visibility: hidden;
   -moz-box-shadow: 2px 2px 8px 1px rgba(0, 0, 0, 0.2);
@@ -156,7 +158,7 @@
   -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
 }
-/* line 103, ../sass/popup.scss */
+/* line 105, ../sass/popup.scss */
 .modal-inset .close {
   display: block;
   cursor: pointer;
@@ -166,14 +168,16 @@
   padding: 10px;
   opacity: .4;
 }
-/* line 111, ../sass/popup.scss */
+/* line 113, ../sass/popup.scss */
 .modal-inset .close:hover {
   opacity: 1;
 }
 
-/* line 116, ../sass/popup.scss */
+/* line 118, ../sass/popup.scss */
 .modal-body {
   margin: auto;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   -moz-transform: translateY(0) scale(0.8, 0.8);
   -ms-transform: translateY(0) scale(0.8, 0.8);
@@ -192,7 +196,7 @@
   -webkit-transition-delay: 0.1s;
   transition-delay: 0.1s;
 }
-/* line 123, ../sass/popup.scss */
+/* line 127, ../sass/popup.scss */
 .modal-body h3 {
   font-weight: 700;
   padding-bottom: 22px;
@@ -200,14 +204,14 @@
   color: #F2594B;
   text-align: center;
 }
-/* line 130, ../sass/popup.scss */
+/* line 134, ../sass/popup.scss */
 .modal-body p {
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
-/* line 133, ../sass/popup.scss */
+/* line 137, ../sass/popup.scss */
 .modal-body .ps {
   font-size: 12px;
-  opacity: .3;
+  opacity: .5;
 }
 
 @-webkit-keyframes modalComeIn {

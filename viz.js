@@ -228,8 +228,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
 
         });
 
-        // Add popup-on-click feature
-        d3.select('svg').select('g').selectAll('rect.movie').on("click", function(){
+        function callPopup() {
             // Add all informations to the popup
             $modal = $('.modal-frame');
             $overlay = $('.modal-overlay');
@@ -247,17 +246,22 @@ d3.tsv('data/movies.tsv', function(error, data) {
             popup.select('#rank1').text('Top100: '+(m.index+1));
             popup.select('#rank2').text('IMDb: ' + m.imdbRating);
             popup.select('#plot').text(m.plot);
-            popup.select('#director').text('Director: '+m.director);
+            popup.select('#director').html('<strong>Director</strong>: '+m.director);
             popup.select('#actors').text('Actors: '+m.actors);
             for (var h = 0; h < m.similar.length; h++) {
                 popup.select('#similar'+(h+1))
                     .attr('src', movies[m.similar[h].index].poster)
-                    .attr('class', 'img-thumbnail');
+                    .attr('class', 'img-thumbnail')
+                    .attr('id', movies[m.similar[h].index].id)
+                    .on("click", callPopup);
             }
             // Show Popup
             $overlay.addClass('state-show');
             $modal.removeClass('state-leave').addClass('state-appear');
-        });
+        }
+
+        // Add popup-on-click feature
+        d3.select('svg').select('g').selectAll('rect.movie').on("click", callPopup);
 
         function placeSimilar(movie) {
             for (var i = 0; i < movie.similar.length; i++) {
