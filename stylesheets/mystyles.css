@@ -15,9 +15,19 @@ div.checkbox {
     margin-top: -5px;
 }
 
+.movie:hover {
+    stroke: #aaa;
+    stroke-width: 2px;
+    transition: stroke 1s;
+}
+
 .similar img {
     display: inline;
     width: 18%;
+}
+
+#main {
+    margin-top: 30px;
 }
 
 #clear {
