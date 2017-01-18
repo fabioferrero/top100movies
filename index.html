@@ -40,14 +40,16 @@
 						<h4>Filter by genre</h4>
 					</div>
 					<div id="yearBox">
-						<h4>
-							<label for="years">Filter by year</label>
-							<input type="text" id="years" readonly style="border:0; color:#007fed;">
-						</h4>
+						<h4>Filter by year</h4>
+						<label for="years">Use slider to select a time range: </label>
+						<input type="text" id="years" readonly style="border:0; color:#007fed;">
 						<div id="slider-years"></div>
+						<div class="year" style="text-align:left">2000</div>
+						<div class="year">2008</div>
+						<div class="year" style="text-align:right">2016</div>
 					</div>
 				</div>
-				<button id="clear" class="btn btn-primary center-block">Clear Filters</button>
+				<!--<button id="clear" class="btn btn-primary center-block">Clear Filters</button>-->
 			</div>
 		</div>
 	</div>
@@ -76,6 +78,8 @@
 							</p>
 			    			<p id="plot"></p>
 							<p id="director"></p>
+							<p id="language"></p>
+							<p id="released"></p>
 							<p id="actors" class="ps"></p>
 							<p>You would probably like also:</p>
 							<p class="similar">

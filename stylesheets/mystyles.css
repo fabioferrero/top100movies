@@ -35,6 +35,14 @@ div.checkbox {
     border-radius: 3px;
 }
 
+.year {
+    text-align: center;
+    float: left;
+    width: 33.3%;
+    margin: 0;
+    padding: 0;
+}
+
 #main {
     margin-top: 30px;
 }
@@ -47,4 +55,8 @@ div.checkbox {
 #searchField {
     width: 40%;
     margin-right: 10px;
+}
+
+#years {
+    font-size: 1.2em;
 }

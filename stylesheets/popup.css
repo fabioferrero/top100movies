@@ -139,7 +139,7 @@
   padding: 60px;
   background-color: white;
   min-width: 800px;
-  min-height: 570px;
+  min-height: 630px;
   width: 80%;
   height: 80%;
   margin: auto;
@@ -205,10 +205,6 @@
   text-align: center;
 }
 /* line 134, ../sass/popup.scss */
-.modal-body p {
-  padding-bottom: 10px;
-}
-/* line 137, ../sass/popup.scss */
 .modal-body .ps {
   font-size: 12px;
   opacity: .5;

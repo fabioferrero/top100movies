@@ -36,6 +36,8 @@ d3.tsv('data/movies.tsv', function(error, data) {
             d.height = 0;
             d.year = Number(d.year);
             d.runtime = metadata[index]['runtime'];
+            d.lang = metadata[index]['language'];
+            d.released = metadata[index]['released'];
             d.country = metadata[index]['country'];
             d.imdbRating = metadata[index]['imdbRating'];
             d.plot = metadata[index]['plot'];
@@ -247,6 +249,8 @@ d3.tsv('data/movies.tsv', function(error, data) {
             popup.select('#rank2').text('IMDb: ' + m.imdbRating);
             popup.select('#plot').text(m.plot);
             popup.select('#director').html('<strong>Director</strong>: '+m.director);
+            popup.select('#language').html('<strong>Language</strong>: '+m.lang);
+            popup.select('#released').html('<strong>Released on</strong> '+m.released);
             popup.select('#actors').text('Actors: '+m.actors);
             for (var h = 0; h < m.similar.length; h++) {
                 popup.select('#similar'+(h+1))
