@@ -114,7 +114,7 @@ d3.tsv('data/movies.tsv', function(error, data) {
                         }
                     }
                 }
-                similarity[i][j] = (0.3*similarity[i][j] + 0.7*commonGenres / numberOfGenres);
+                similarity[i][j] = (0.5*similarity[i][j] + 0.5*commonGenres / numberOfGenres);
                 similarity[j][i] = similarity[i][j];
             }
         }
